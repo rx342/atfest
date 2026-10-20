@@ -58,10 +58,10 @@ def main():
         from libs.data import read_schedule
         from libs.display import print_solution
         from libs.interact import ask_events
-        from libs.solver import convert_solution_to_pandas, solve
+        from libs.solver import convert_binary_vector_to_pandas, solve
 
         data = read_schedule(p_args.input)
         choices = ask_events(data)
         x_star = solve(data, choices)
-        x_star_df = convert_solution_to_pandas(x_star, data)
+        x_star_df = convert_binary_vector_to_pandas(x_star, data)
         print_solution(x_star_df, choices)
