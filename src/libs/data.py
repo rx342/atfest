@@ -193,6 +193,7 @@ def read_schedule(input_path: Path) -> pd.DataFrame:
 
     result = pd.json_normalize(data)
     result = result.astype({"event": "str", "start": "uint32", "end": "uint32"})
+    result = result.sort_values(by=["start"])
 
     return result
 
