@@ -61,8 +61,81 @@ def convert_binary_vector_to_pandas(x: np.ndarray, data: pd.DataFrame) -> pd.Dat
         Solution as a `pd.DataFrame`
 
     """
-    result = data[x_star.astype(bool)]
+    result = data[x.astype(bool)]
     return result  # type: ignore
+
+
+def get_compacter_indices(c: np.ndarray) -> list[int]:
+    """Return indices to transform a vector to a compact one.
+    The compact vector has elements where `c` is equal to 1.
+
+    Parameters
+    ----------
+    c : np.ndarray
+        User choice vector
+
+    Returns
+    -------
+    list[int]
+        Indices where `c` is equal to 1
+
+    """
+    indices = [i for i, x in enumerate(c) if x == 1]
+
+    return indices
+
+
+def compact_vector(x: np.ndarray, compact_indices: list[int]) -> np.ndarray:
+    """Transform a vector to the compact version.
+
+    Parameters
+    ----------
+    x : np.ndarray
+        Vector to transform
+    compact_indices : list[int]
+        Indices coming from `get_compacter_indices`
+
+    Returns
+    -------
+    np.ndarray
+        Compact version of the vector `x`
+
+    """
+    result = np.array([e for i, e in enumerate(x) if i in compact_indices])
+
+    return result
+
+
+def uncompact_vector(
+    x_tilde: np.ndarray, compact_indices: list[int], dim: int
+) -> np.ndarray:
+    """Transform the compact vector back to its original form.
+
+    Parameters
+    ----------
+    x_tilde : np.ndarray
+        Compact vector to transform back
+    compact_indices : list[int]
+        Indices coming from `get_compacter_indices`
+    dim : int
+        Original dimension of the vector
+
+    Returns
+    -------
+    np.ndarray
+        Vector in the original form
+
+    """
+    uncompact_indices = {x: i for i, x in enumerate(compact_indices)}
+
+    result = []
+    for i in range(dim):
+        if i in compact_indices:
+            result.append(x_tilde[uncompact_indices[i]])
+        else:
+            result.append(0)
+
+    return np.array(result)
 
 
 def init_x(dim: int) -> cp.Variable:
@@ -181,22 +254,31 @@ def solve(data: pd.DataFrame, user_choices: list[str]) -> np.ndarray:
         Optimal solution
 
     """
+    if len(user_choices) == 0:
+        return np.array([])
+
     c = get_user_choice_vector(data, user_choices)
-    e = get_event_matrix(data)
+    init_dim = c.size
 
-    num_events = c.size
-    x = init_x(num_events)
-    y = init_y(num_events)
+    compact_indices = get_compacter_indices(c)
+    c_tilde = compact_vector(c, compact_indices)
 
-    objective = cp.Maximize(cp.vdot(x.T, c))
+    num_events = c_tilde.size
+    x_tilde = init_x(num_events)
+    y_tilde = init_y(num_events)
+    data_tilde = convert_binary_vector_to_pandas(c, data)
+    e_tilde = get_event_matrix(data_tilde)
 
-    i_1 = get_inequality_non_overlap(x, y, e)
-    i_2 = get_inequality_same_event(x, data)
+    objective = cp.Maximize(cp.vdot(x_tilde.T, c_tilde))
+
+    i_1 = get_inequality_non_overlap(x_tilde, y_tilde, e_tilde)
+    i_2 = get_inequality_same_event(x_tilde, data_tilde)
     prob = cp.Problem(objective, i_1 + i_2)
     result = prob.solve()
 
     log.debug(f"Optimal value is {result}")
-    log.debug(f"Optimal variable is {x.value}")
-    log.debug(f"Optimal slack variable is {y.value}")
 
-    return x.value  # type: ignore
+    x_star = uncompact_vector(x_tilde.value, compact_indices, init_dim)  # type: ignore
+    log.debug(f"Optimal variable is {x_star}")
+
+    return x_star

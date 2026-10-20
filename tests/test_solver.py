@@ -81,6 +81,42 @@ def test_get_user_choice_vector():
     no_data_choice()
 
 
+def test_uncompact_vector():
+    """Test `uncompact_vector`."""
+    from libs.solver import (compact_vector, get_compacter_indices,
+                             uncompact_vector)
+
+    def create_binary_vector(dim: int) -> np.ndarray:
+        """Return a random binary vector.
+
+        Parameters
+        ----------
+        dim : int
+            Dimension of the vector
+
+        Returns
+        -------
+        np.ndarray
+            Binary vector
+
+        """
+        vector = [random.randint(0, 1) for _ in range(dim)]
+        return np.array(vector)
+
+    for _ in range(100):
+        dim = random.randint(10, 30)
+        c = create_binary_vector(dim)
+
+        compact_indices = get_compacter_indices(c)
+
+        x = create_binary_vector(dim)
+        x_tilde = compact_vector(x, compact_indices)
+        result = uncompact_vector(x_tilde, compact_indices, dim)
+
+        assert len(result) == dim
+        assert all(x * c == result)
+
+
 def test_solve():
     """Test `solve`."""
     from libs.solver import solve
