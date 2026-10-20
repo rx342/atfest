@@ -1,5 +1,6 @@
 """Test `libs.solver` functions."""
 
+import itertools
 import random
 
 import numpy as np
@@ -121,16 +122,16 @@ def test_solve():
 
         return time_1_start <= time_2_end and time_2_start <= time_1_end
 
-    def check_event_time(data: pd.DataFrame, x_star: np.ndarray) -> bool:
+    def check_event_time(x_star: np.ndarray, data: pd.DataFrame) -> bool:
         """Check if solution has overlapping events.
 
         Parameters
         ----------
-        data : pd.DataFrame
-            Data containing the schedule
-
         x_star : np.ndarray
             Optimal solution found by the solver
+
+        data : pd.DataFrame
+            Data containing the schedule
 
         Returns
         -------
@@ -138,8 +139,6 @@ def test_solve():
             `True` if events are non overlapping, else `False`
 
         """
-        import itertools
-
         from libs.solver import convert_solution_to_pandas
 
         x_star_df = convert_solution_to_pandas(x_star, data)
@@ -151,6 +150,29 @@ def test_solve():
         all_combinations = itertools.pairwise(timestamps)
 
         return all(not time_overlap(t1, t2) for (t1, t2) in all_combinations)  # type: ignore
+
+    def check_unique_event(x_star: np.ndarray, data: pd.DataFrame) -> bool:
+        """Check if events name are unique in the solution (no duplicate).
+
+        Parameters
+        ----------
+        x_star : np.ndarray
+            Optimal solution found by the solver
+
+        data : pd.DataFrame
+            Data containing the schedule
+
+        Returns
+        -------
+        bool
+            `True` if events have unique name, else `False`
+
+        """
+        from libs.solver import convert_solution_to_pandas
+
+        x_star_df = convert_solution_to_pandas(x_star, data)
+        all_combinations = itertools.permutations(x_star_df["event"], 2)
+        return all(e_1 != e_2 for (e_1, e_2) in all_combinations)
 
     def create_data() -> pd.DataFrame:
         """Return a `pd.DataFrame` containing random valid data."""
@@ -190,7 +212,8 @@ def test_solve():
         x_star = solve(data, user_choices)
 
         assert check_values(x_star)
-        assert check_event_time(data, x_star)
+        assert check_event_time(x_star, data)
+        assert check_unique_event(x_star, data)
 
     def no_choice_case():
         """User choice is empty hence we should get an empty vector."""
