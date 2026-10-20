@@ -65,7 +65,7 @@ def print_solution(solution: pd.DataFrame, choices: list[str]):
     table.add_column("Start", style="green")
     table.add_column("End", style="magenta")
 
-    for i, row in solution.sort_values(by=["start"]).iterrows():
+    for i, row in solution.iterrows():
         date_start = dt.datetime.fromtimestamp(
             int(row["start"]),  # type: ignore
             tz=ZoneInfo("Europe/Paris"),
