@@ -13,7 +13,7 @@ def test_get_user_choice_vector():
     from libs.solver import get_user_choice_vector
 
     def check_values(user_choices: np.ndarray) -> bool:
-        """Check if every values is either 0 or 1 (boolean vector).
+        """Check if every values is either 0 or 1 (binary vector).
 
         Parameters
         ----------
@@ -23,7 +23,7 @@ def test_get_user_choice_vector():
         Returns
         -------
         bool
-            `True` if boolean vector else `False`
+            `True` if binary vector else `False`
 
         """
         return all(x in (0, 1) for x in user_choices)
@@ -86,7 +86,7 @@ def test_solve():
     from libs.solver import solve
 
     def check_values(x_star: np.ndarray) -> bool:
-        """Check if every values is either 0 or 1 (boolean vector).
+        """Check if every values is either 0 or 1 (binary vector).
 
         Parameters
         ----------
@@ -96,7 +96,7 @@ def test_solve():
         Returns
         -------
         bool
-            `True` if boolean vector else `False`
+            `True` if binary vector else `False`
 
         """
         return all(x in (0, 1) for x in x_star)
