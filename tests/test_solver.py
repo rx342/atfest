@@ -139,9 +139,9 @@ def test_solve():
             `True` if events are non overlapping, else `False`
 
         """
-        from libs.solver import convert_solution_to_pandas
+        from libs.solver import convert_binary_vector_to_pandas
 
-        x_star_df = convert_solution_to_pandas(x_star, data)
+        x_star_df = convert_binary_vector_to_pandas(x_star, data)
         timestamps = x_star_df[["start", "end"]]
         timestamps = list(
             x_star_df[["start", "end"]].itertuples(index=False, name=None)
@@ -168,9 +168,9 @@ def test_solve():
             `True` if events have unique name, else `False`
 
         """
-        from libs.solver import convert_solution_to_pandas
+        from libs.solver import convert_binary_vector_to_pandas
 
-        x_star_df = convert_solution_to_pandas(x_star, data)
+        x_star_df = convert_binary_vector_to_pandas(x_star, data)
         all_combinations = itertools.permutations(x_star_df["event"], 2)
         return all(e_1 != e_2 for (e_1, e_2) in all_combinations)
 

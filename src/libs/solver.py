@@ -45,13 +45,13 @@ def get_event_matrix(data: pd.DataFrame) -> np.ndarray:
     return result
 
 
-def convert_solution_to_pandas(x_star: np.ndarray, data: pd.DataFrame) -> pd.DataFrame:
-    """Convert the solution to a `pd.Dataframe`
+def convert_binary_vector_to_pandas(x: np.ndarray, data: pd.DataFrame) -> pd.DataFrame:
+    """Convert a binary vector to a `pd.Dataframe`
 
     Parameters
     ----------
-    x_star : np.ndarray
-        Solution found by the solver
+    x : np.ndarray
+        Binary vector
     data : pd.DataFrame
         Data containing the schedule
 
