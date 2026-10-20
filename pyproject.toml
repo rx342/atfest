@@ -11,9 +11,14 @@ dependencies = [
     "cvxpy>=1.9.3",
     "numpy>=2.5.4",
     "pandas>=3.0.6",
-    "pytest>=9.1.1",
     "questionary>=2.1.1",
     "rich>=15.0.0",
+]
+
+[dependency-groups]
+dev = [
+    "pytest>=9.1.1",
+    "ruff>=0.17.1",
 ]
 
 [project.scripts]
