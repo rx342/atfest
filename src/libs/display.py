@@ -84,7 +84,9 @@ def print_solution(solution: pd.DataFrame, choices: list[str]):
     print(table)
 
     missing = set(choices) - set(solution["event"])
-    formatted_missing = (f"[bold cyan]{m}[/bold cyan]" for m in missing)
-    print(
-        f"The [bold red]missing[/bold red] events are: {', '.join(formatted_missing)}"
-    )
+    formatted_missing = [f"[bold cyan]{m}[/bold cyan]" for m in missing]
+
+    if len(formatted_missing):
+        print(
+            f"The [bold red]missing[/bold red] events are: {', '.join(formatted_missing)}"
+        )
