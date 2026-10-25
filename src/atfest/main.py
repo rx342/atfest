@@ -24,7 +24,15 @@ def main():
     show_parser.add_argument(
         "--num_elements", type=int, default=5, help="Number of elements to pretty print"
     )
-    sub_parsers.add_parser("solve", parents=[global_parser], help="Solve the schedule")
+    solve_parser = sub_parsers.add_parser(
+        "solve", parents=[global_parser], help="Solve the schedule"
+    )
+    solve_parser.add_argument(
+        "--max_num_events_per_day",
+        type=int,
+        default=3,
+        help="Maximum number of events per day",
+    )
 
     p_args = parser.parse_args()
 
@@ -62,6 +70,6 @@ def main():
 
         data = read_schedule(p_args.input)
         choices = ask_events(data)
-        x_star = solve(data, choices)
+        x_star = solve(data, choices, p_args.max_num_events_per_day)
         x_star_df = convert_binary_vector_to_pandas(x_star, data)
         print_solution(x_star_df, choices)
