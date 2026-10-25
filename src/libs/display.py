@@ -1,11 +1,10 @@
 """Display functions."""
 
-import datetime as dt
-from zoneinfo import ZoneInfo
-
 import pandas as pd
 from rich import print
 from rich.table import Table
+
+from libs.date import date_from_timestamp
 
 
 def print_dataframe(data: pd.DataFrame, num_elements: int = 5):
@@ -27,14 +26,8 @@ def print_dataframe(data: pd.DataFrame, num_elements: int = 5):
 
     for i, row in data.iterrows():
         if i < num_elements:  # type: ignore
-            date_start = dt.datetime.fromtimestamp(
-                int(row["start"]),  # type: ignore
-                tz=ZoneInfo("Europe/Paris"),
-            )
-            date_end = dt.datetime.fromtimestamp(
-                int(row["end"]),  # type: ignore
-                tz=ZoneInfo("Europe/Paris"),
-            )
+            date_start = date_from_timestamp(int(row["start"]))  # type: ignore
+            date_end = date_from_timestamp(int(row["end"]))  # type: ignore
 
             table.add_row(
                 row["event"],  # type: ignore
@@ -66,14 +59,8 @@ def print_solution(solution: pd.DataFrame, choices: list[str]):
     table.add_column("End", style="magenta")
 
     for i, row in solution.iterrows():
-        date_start = dt.datetime.fromtimestamp(
-            int(row["start"]),  # type: ignore
-            tz=ZoneInfo("Europe/Paris"),
-        )
-        date_end = dt.datetime.fromtimestamp(
-            int(row["end"]),  # type: ignore
-            tz=ZoneInfo("Europe/Paris"),
-        )
+        date_start = date_from_timestamp(int(row["start"]))  # type: ignore
+        date_end = date_from_timestamp(int(row["end"]))  # type: ignore
 
         table.add_row(
             row["event"],  # type: ignore
