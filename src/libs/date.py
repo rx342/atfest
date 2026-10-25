@@ -4,6 +4,8 @@ import datetime as dt
 import logging
 from zoneinfo import ZoneInfo
 
+import pandas as pd
+
 log = logging.getLogger(__name__)
 
 
@@ -137,5 +139,52 @@ def date_from_timestamp(ts: int) -> dt.datetime:
         ts,
         tz=ZoneInfo("Europe/Paris"),
     )
+
+    return result
+
+
+def convert_timestamp_to_datetime(data: pd.DataFrame) -> pd.DataFrame:
+    """Convert timestamp columns in the `pd.DataFrame` data in a datetime string.
+
+    Parameters
+    ----------
+    data : pd.DataFrame
+        DataFrame to convert fields
+
+    Returns
+    -------
+    pd.DataFrame
+        New DataFrame with datetime columns
+
+    """
+
+    def converter(column: pd.Series) -> pd.Series:
+        return pd.to_datetime(column, unit="s", utc=True).dt.tz_convert("Europe/Paris")
+
+    result = data
+    result["start"] = converter(data["start"])  # type: ignore
+    result["end"] = converter(data["end"])  # type: ignore
+
+    return result
+
+
+def convert_timestamp_to_day(data: pd.DataFrame) -> pd.DataFrame:
+    """Convert timestamp columns in the `pd.DataFrame` data to keep only the day of the event.
+
+    Parameters
+    ----------
+    data : pd.DataFrame
+        DataFrame to convert fields
+
+    Returns
+    -------
+    pd.DataFrame
+        New DataFrame with datetime columns
+
+    """
+
+    result = convert_timestamp_to_datetime(data)
+    result["start"] = result["start"].dt.date
+    result["end"] = result["end"].dt.date
 
     return result

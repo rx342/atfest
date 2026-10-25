@@ -238,7 +238,43 @@ def get_inequality_same_event(
     return ineqs  # type: ignore
 
 
-def solve(data: pd.DataFrame, user_choices: list[str]) -> np.ndarray:
+def get_inequality_max_events_per_day(
+    x: cp.Variable, data: pd.DataFrame, max_num_events_per_day: int
+) -> list[cp.Constraint]:
+    """Return the list of inequalities to attend a maximum number of events per day.
+
+    Parameters
+    ----------
+    x : cp.Variable
+        Variable to optimize
+    data : pd.DataFrame
+        Data containing the schedule
+    max_num_events_per_day : int
+        Maximum number of events per day
+
+    Returns
+    -------
+    list[cp.Constraint]
+        List of inequality constraints
+
+    """
+    from libs.date import convert_timestamp_to_day
+
+    log.debug(f"Maximum number of events per day: {max_num_events_per_day}")
+
+    df = convert_timestamp_to_day(data)
+    days = df["start"].unique()
+
+    ineqs = []
+    for day in days:
+        ineqs.append(cp.sum(x[df["start"] == day]) <= max_num_events_per_day)
+
+    return ineqs
+
+
+def solve(
+    data: pd.DataFrame, user_choices: list[str], max_num_events_per_day: int = 2
+) -> np.ndarray:
     """Solve the optimization problem
 
     Parameters
@@ -247,6 +283,8 @@ def solve(data: pd.DataFrame, user_choices: list[str]) -> np.ndarray:
         Data containing the schedule
     user_choices : list[str]
         List of events the user want to attend
+    max_num_events_per_day : int
+        Maximum number of events per day
 
     Returns
     -------
@@ -273,7 +311,8 @@ def solve(data: pd.DataFrame, user_choices: list[str]) -> np.ndarray:
 
     i_1 = get_inequality_non_overlap(x_tilde, y_tilde, e_tilde)
     i_2 = get_inequality_same_event(x_tilde, data_tilde)
-    prob = cp.Problem(objective, i_1 + i_2)
+    i_3 = get_inequality_max_events_per_day(x_tilde, data_tilde, max_num_events_per_day)
+    prob = cp.Problem(objective, i_1 + i_2 + i_3)
     result = prob.solve()
 
     log.debug(f"Optimal value is {result}")
