@@ -302,6 +302,6 @@ def test_solve():
 
         assert all(x == 0 for x in x_star)
 
-    for _ in range(5):
+    for _ in range(30):
         default_case()
         no_choice_case()
