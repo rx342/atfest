@@ -210,6 +210,47 @@ def test_solve():
         all_combinations = itertools.permutations(x_star_df["event"], 2)
         return all(e_1 != e_2 for (e_1, e_2) in all_combinations)
 
+    def check_max_number_of_events_per_day(
+        x_star: np.ndarray, data: pd.DataFrame, max_num_events_per_day: int
+    ) -> bool:
+        """Check if events respect the maximum number of events per day.
+
+        Parameters
+        ----------
+        x_star : np.ndarray
+            Optimal solution found by the solver
+
+        data : pd.DataFrame
+            Data containing the schedule
+
+        max_num_events_per_day : int
+            Maximum number of events per day
+
+        Returns
+        -------
+        bool
+            `True` if events respect the maximum number of events, else `False`
+
+        """
+
+        from libs.date import convert_timestamp_to_day
+        from libs.solver import convert_binary_vector_to_pandas
+
+        x_star_df = convert_timestamp_to_day(
+            convert_binary_vector_to_pandas(x_star, data)
+        )
+
+        days = x_star_df["start"].unique()
+
+        return all(
+            len(x_star_df[x_star_df["start"] == day]) <= max_num_events_per_day
+            for day in days
+        )
+
+    def create_max_number_of_events_per_day() -> int:
+        """Return a random value for the maximum number of events per day."""
+        return random.randint(1, 5)
+
     def create_data() -> pd.DataFrame:
         """Return a `pd.DataFrame` containing random valid data."""
 
@@ -244,12 +285,14 @@ def test_solve():
 
         data = create_data()
         user_choices = create_user_choices(data)
+        max_num_events_per_day = create_max_number_of_events_per_day()
 
-        x_star = solve(data, user_choices)
+        x_star = solve(data, user_choices, max_num_events_per_day)
 
         assert check_values(x_star)
         assert check_event_time(x_star, data)
         assert check_unique_event(x_star, data)
+        assert check_max_number_of_events_per_day(x_star, data, max_num_events_per_day)
 
     def no_choice_case():
         """User choice is empty hence we should get an empty vector."""
