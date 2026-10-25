@@ -199,4 +199,17 @@ def read_schedule(input_path: Path) -> pd.DataFrame:
 
 
 def get_all_events(data: pd.DataFrame) -> list[str]:
+    """Return all events into a list of string.
+
+    Parameters
+    ----------
+    data : pd.DataFrame
+        Data containing the schedule
+
+    Returns
+    -------
+    list[str]
+        List of events
+
+    """
     return data["event"].to_list()
