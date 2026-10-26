@@ -5,6 +5,7 @@ from rich import print
 from rich.table import Table
 
 from libs.date import date_from_timestamp
+from libs.priority import Priority
 
 
 def print_dataframe(data: pd.DataFrame, num_elements: int = 5):
@@ -41,7 +42,7 @@ def print_dataframe(data: pd.DataFrame, num_elements: int = 5):
 
 
 def print_solution(
-    solution: pd.DataFrame, choices: list[str], priorities: dict[str, float]
+    solution: pd.DataFrame, choices: list[str], priorities: dict[str, Priority]
 ):
     """Print the solution in a nice table.
 
@@ -51,7 +52,7 @@ def print_solution(
         DataFrame containing all the possible events to attend to
     choices : list[str]
         User choices
-    priorities : dict[str, float]
+    priorities : dict[str, Priority]
         User priorities for each event
 
     """
