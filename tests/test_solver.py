@@ -118,6 +118,7 @@ def test_uncompact_vector():
 
 def test_solve():
     """Test `solve`."""
+    from libs.priority import Priority
     from libs.solver import solve
 
     def check_values(x_star: np.ndarray) -> bool:
@@ -279,14 +280,18 @@ def test_solve():
         num_choices = random.randint(1, num_events - 1)
         return random.sample(list(set(data["event"])), num_choices)
 
+    def create_user_priorities(user_choices: list[str]) -> dict[str, Priority]:
+        return {choice: random.choice([p for p in Priority]) for choice in user_choices}
+
     def default_case():
         """Default case."""
 
         data = create_data()
         user_choices = create_user_choices(data)
+        user_priorities = create_user_priorities(user_choices)
         max_num_events_per_day = create_max_number_of_events_per_day()
 
-        x_star = solve(data, user_choices, max_num_events_per_day)
+        x_star = solve(data, user_choices, user_priorities, max_num_events_per_day)
 
         assert check_values(x_star)
         assert check_event_time(x_star, data)
@@ -297,7 +302,7 @@ def test_solve():
         """User choice is empty hence we should get an empty vector."""
 
         data = create_data()
-        x_star = solve(data, [])
+        x_star = solve(data, [], {})
 
         assert all(x == 0 for x in x_star)
 
