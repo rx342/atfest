@@ -83,8 +83,7 @@ def test_get_user_choice_vector():
 
 def test_uncompact_vector():
     """Test `uncompact_vector`."""
-    from libs.solver import (compact_vector, get_compacter_indices,
-                             uncompact_vector)
+    from libs.solver import compact_vector, get_compacter_indices, uncompact_vector
 
     def create_binary_vector(dim: int) -> np.ndarray:
         """Return a random binary vector.

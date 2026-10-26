@@ -21,6 +21,9 @@ dev = [
     "ruff>=0.17.1",
 ]
 
+[tool.isort]
+profile = "black"
+
 [project.scripts]
 atfest = "atfest.main:main"
 
