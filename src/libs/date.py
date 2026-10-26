@@ -188,3 +188,24 @@ def convert_timestamp_to_day(data: pd.DataFrame) -> pd.DataFrame:
     result["end"] = result["end"].dt.date
 
     return result
+
+
+def remove_morning_events(data: pd.DataFrame, starting_hour: int = 14) -> pd.DataFrame:
+    """Remove rows that have a morning events _i.e._ events need to start at 2pm at least.
+
+    Parameters
+    ----------
+    data : pd.DataFrame
+        Data containing the schedule
+    starting_hour : int
+        Minimum starting hour even (24h format)
+
+    Returns
+    -------
+    pd.DataFrame
+        Data without morning events
+
+    """
+    df = convert_timestamp_to_datetime(data)
+    result = data[df["start"].dt.hour >= starting_hour]
+    return result  # type: ignore

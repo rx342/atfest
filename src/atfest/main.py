@@ -64,11 +64,12 @@ def main():
         print_dataframe(data, p_args.num_elements)
     if p_args.command == "solve":
         from libs.data import read_schedule
+        from libs.date import remove_morning_events
         from libs.display import print_solution
         from libs.interact import ask_events, ask_priorities
         from libs.solver import convert_binary_vector_to_pandas, solve
 
-        data = read_schedule(p_args.input)
+        data = remove_morning_events(read_schedule(p_args.input))
         choices = ask_events(data)
         priorities = ask_priorities(choices)
         x_star = solve(data, choices, priorities, p_args.max_num_events_per_day)
