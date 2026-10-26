@@ -245,19 +245,19 @@ def get_inequality_max_events_per_day(
 ) -> list[cp.Constraint]:
     """Return the list of inequalities to attend a maximum number of events per day.
 
-        Parameters
-        ----------
+    Parameters
+    ----------
     x : cp.Variable
-            Variable to optimize
-        data : pd.DataFrame
-            Data containing the schedule
-        max_num_events_per_day : int
-             Maximum number of events per day
+        Variable to optimize
+    data : pd.DataFrame
+        Data containing the schedule
+    max_num_events_per_day : int
+        Maximum number of events per day
 
-        Returns
-        -------
-        list[cp.Constraint]
-            List of inequality constraints
+    Returns
+    -------
+    list[cp.Constraint]
+        List of inequality constraints
 
     """
     from libs.date import convert_timestamp_to_day
