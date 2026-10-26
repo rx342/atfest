@@ -65,11 +65,12 @@ def main():
     if p_args.command == "solve":
         from libs.data import read_schedule
         from libs.display import print_solution
-        from libs.interact import ask_events
+        from libs.interact import ask_events, ask_priorities
         from libs.solver import convert_binary_vector_to_pandas, solve
 
         data = read_schedule(p_args.input)
         choices = ask_events(data)
-        x_star = solve(data, choices, p_args.max_num_events_per_day)
+        priorities = ask_priorities(choices)
+        x_star = solve(data, choices, priorities, p_args.max_num_events_per_day)
         x_star_df = convert_binary_vector_to_pandas(x_star, data)
-        print_solution(x_star_df, choices)
+        print_solution(x_star_df, choices, priorities)

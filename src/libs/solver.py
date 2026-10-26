@@ -4,6 +4,8 @@ import cvxpy as cp
 import numpy as np
 import pandas as pd
 
+from libs.priority import Priority
+
 log = logging.getLogger(__name__)
 
 
@@ -243,19 +245,19 @@ def get_inequality_max_events_per_day(
 ) -> list[cp.Constraint]:
     """Return the list of inequalities to attend a maximum number of events per day.
 
-    Parameters
-    ----------
+        Parameters
+        ----------
     x : cp.Variable
-        Variable to optimize
-    data : pd.DataFrame
-        Data containing the schedule
-    max_num_events_per_day : int
-        Maximum number of events per day
+            Variable to optimize
+        data : pd.DataFrame
+            Data containing the schedule
+        max_num_events_per_day : int
+             Maximum number of events per day
 
-    Returns
-    -------
-    list[cp.Constraint]
-        List of inequality constraints
+        Returns
+        -------
+        list[cp.Constraint]
+            List of inequality constraints
 
     """
     from libs.date import convert_timestamp_to_day
@@ -273,7 +275,10 @@ def get_inequality_max_events_per_day(
 
 
 def solve(
-    data: pd.DataFrame, user_choices: list[str], max_num_events_per_day: int = 2
+    data: pd.DataFrame,
+    user_choices: list[str],
+    user_priorities: dict[str, Priority],
+    max_num_events_per_day: int = 2,
 ) -> np.ndarray:
     """Solve the optimization problem
 
@@ -283,6 +288,8 @@ def solve(
         Data containing the schedule
     user_choices : list[str]
         List of events the user want to attend
+    user_priorities : dict[str, Priority]
+        List of priorities for each event the user chose
     max_num_events_per_day : int
         Maximum number of events per day
 
@@ -292,14 +299,18 @@ def solve(
         Optimal solution
 
     """
+    from libs.priority import get_priority_vector
+
     if len(user_choices) == 0:
         return np.array([])
 
     c = get_user_choice_vector(data, user_choices)
     init_dim = c.size
 
+    p = get_priority_vector(data, user_priorities)
+
     compact_indices = get_compacter_indices(c)
-    c_tilde = compact_vector(c, compact_indices)
+    c_tilde = compact_vector(c * p, compact_indices)
 
     num_events = c_tilde.size
     x_tilde = init_x(num_events)
