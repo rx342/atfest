@@ -161,9 +161,9 @@ def convert_timestamp_to_datetime(data: pd.DataFrame) -> pd.DataFrame:
     def converter(column: pd.Series) -> pd.Series:
         return pd.to_datetime(column, unit="s", utc=True).dt.tz_convert("Europe/Paris")
 
-    result = data
-    result["start"] = converter(data["start"])  # type: ignore
-    result["end"] = converter(data["end"])  # type: ignore
+    result = data.copy()
+    result["start"] = converter(result["start"])  # type: ignore
+    result["end"] = converter(result["end"])  # type: ignore
 
     return result
 
