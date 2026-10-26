@@ -119,7 +119,7 @@ def test_uncompact_vector():
 def test_solve():
     """Test `solve`."""
     from libs.priority import Priority
-    from libs.solver import solve
+    from libs.solver import convert_binary_vector_to_pandas, solve
 
     def check_values(x_star: np.ndarray) -> bool:
         """Check if every values is either 0 or 1 (binary vector).
@@ -175,8 +175,6 @@ def test_solve():
             `True` if events are non overlapping, else `False`
 
         """
-        from libs.solver import convert_binary_vector_to_pandas
-
         x_star_df = convert_binary_vector_to_pandas(x_star, data)
         timestamps = x_star_df[["start", "end"]]
         timestamps = list(
@@ -204,8 +202,6 @@ def test_solve():
             `True` if events have unique name, else `False`
 
         """
-        from libs.solver import convert_binary_vector_to_pandas
-
         x_star_df = convert_binary_vector_to_pandas(x_star, data)
         all_combinations = itertools.permutations(x_star_df["event"], 2)
         return all(e_1 != e_2 for (e_1, e_2) in all_combinations)
@@ -234,7 +230,6 @@ def test_solve():
         """
 
         from libs.date import convert_timestamp_to_day
-        from libs.solver import convert_binary_vector_to_pandas
 
         x_star_df = convert_timestamp_to_day(
             convert_binary_vector_to_pandas(x_star, data)
@@ -246,6 +241,35 @@ def test_solve():
             len(x_star_df[x_star_df["start"] == day]) <= max_num_events_per_day
             for day in days
         )
+
+    def check_morning_events(
+        x_star: np.ndarray, data: pd.DataFrame, starting_hour: int
+    ) -> bool:
+        """Check if there is no morning events from the solution.
+
+        Parameters
+        ----------
+        x_star : np.ndarray
+            Optimal solution found by the solver
+
+        data : pd.DataFrame
+            Data containing the schedule
+
+        starting_hour : int
+            Minimum starting hour even (24h format)
+
+        Returns
+        -------
+        bool
+            `True` if there is no morning events, else `False`
+
+        """
+        from libs.date import convert_timestamp_to_datetime
+
+        x_star_df = convert_binary_vector_to_pandas(x_star, data)
+        x_star_df = convert_timestamp_to_datetime(x_star_df)
+
+        return all(x_star_df["start"].dt.hour >= starting_hour)
 
     def create_max_number_of_events_per_day() -> int:
         """Return a random value for the maximum number of events per day."""
@@ -298,6 +322,25 @@ def test_solve():
         assert check_unique_event(x_star, data)
         assert check_max_number_of_events_per_day(x_star, data, max_num_events_per_day)
 
+    def no_morning_events_case():
+        """No morning events case."""
+        from libs.date import remove_morning_events
+
+        starting_hour = random.randint(11, 14)
+
+        data = remove_morning_events(create_data(), starting_hour)
+        user_choices = create_user_choices(data)
+        user_priorities = create_user_priorities(user_choices)
+        max_num_events_per_day = create_max_number_of_events_per_day()
+
+        x_star = solve(data, user_choices, user_priorities, max_num_events_per_day)
+
+        assert check_values(x_star)
+        assert check_event_time(x_star, data)
+        assert check_unique_event(x_star, data)
+        assert check_max_number_of_events_per_day(x_star, data, max_num_events_per_day)
+        assert check_morning_events(x_star, data, starting_hour)
+
     def no_choice_case():
         """User choice is empty hence we should get an empty vector."""
 
@@ -308,4 +351,5 @@ def test_solve():
 
     for _ in range(30):
         default_case()
+        no_morning_events_case()
         no_choice_case()
