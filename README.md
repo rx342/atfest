@@ -5,7 +5,7 @@ _Movies and priorities were picked randomly as an example_.
 
 For some particular movie festival, it is not direct to make a program because movies can be screened **multiple times** during the period and also two movies can be screened **at the same time**.
 I also have my **personal** constraints such as a maximum number of screening per day, or only watch a movie once at best.
-This project aims to translate this problem as an [optimization problem](https://en.wikipedia.org/wiki/Optimization_problem) and solve it.
+This project aims to translate this problem as an [optimization problem](https://en.wikipedia.org/wiki/Mathematical_optimization) and solve it.
 
 If you are interested in the mathematical details, please check the [blog post](https://rx342.xyz/blog/atfest/).
 
