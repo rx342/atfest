@@ -274,6 +274,40 @@ def get_inequality_max_events_per_day(
     return ineqs
 
 
+def get_equality_opening(x: cp.Variable) -> list[cp.Constraint]:
+    """Return the constraint of attending the first event.
+
+    Parameters
+    ----------
+    x : cp.Variable
+        Variable to optimize
+
+    Returns
+    -------
+    list[cp.Constraint]
+        Constraint equality
+
+    """
+    return [x[0] == 1]
+
+
+def get_equality_closing(x: cp.Variable) -> list[cp.Constraint]:
+    """Return the constraint of attending the last event.
+
+    Parameters
+    ----------
+    x : cp.Variable
+        Variable to optimize
+
+    Returns
+    -------
+    list[cp.Constraint]
+        Constraint equality
+
+    """
+    return [x[-1] == 1]
+
+
 def solve(
     data: pd.DataFrame,
     user_choices: list[str],
@@ -323,7 +357,15 @@ def solve(
     i_1 = get_inequality_non_overlap(x_tilde, y_tilde, e_tilde)
     i_2 = get_inequality_same_event(x_tilde, data_tilde)
     i_3 = get_inequality_max_events_per_day(x_tilde, data_tilde, max_num_events_per_day)
-    prob = cp.Problem(objective, i_1 + i_2 + i_3)
+
+    constraints = i_1 + i_2 + i_3
+
+    if c[0]:
+        constraints += get_equality_opening(x_tilde)
+    if c[-1]:
+        constraints += get_equality_closing(x_tilde)
+
+    prob = cp.Problem(objective, constraints)
     result = prob.solve()
 
     if x_tilde.value is None:
