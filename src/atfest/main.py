@@ -73,5 +73,7 @@ def main():
         choices = ask_events(data)
         priorities = ask_priorities(choices)
         x_star = solve(data, choices, priorities, p_args.max_num_events_per_day)
-        x_star_df = convert_binary_vector_to_pandas(x_star, data)
-        print_solution(x_star_df, choices, priorities)
+
+        if x_star is not None:
+            x_star_df = convert_binary_vector_to_pandas(x_star, data)
+            print_solution(x_star_df, choices, priorities)

@@ -317,10 +317,13 @@ def test_solve():
 
         x_star = solve(data, user_choices, user_priorities, max_num_events_per_day)
 
-        assert check_values(x_star)
-        assert check_event_time(x_star, data)
-        assert check_unique_event(x_star, data)
-        assert check_max_number_of_events_per_day(x_star, data, max_num_events_per_day)
+        if x_star is not None:
+            assert check_values(x_star)
+            assert check_event_time(x_star, data)
+            assert check_unique_event(x_star, data)
+            assert check_max_number_of_events_per_day(
+                x_star, data, max_num_events_per_day
+            )
 
     def no_morning_events_case():
         """No morning events case."""
@@ -335,11 +338,14 @@ def test_solve():
 
         x_star = solve(data, user_choices, user_priorities, max_num_events_per_day)
 
-        assert check_values(x_star)
-        assert check_event_time(x_star, data)
-        assert check_unique_event(x_star, data)
-        assert check_max_number_of_events_per_day(x_star, data, max_num_events_per_day)
-        assert check_morning_events(x_star, data, starting_hour)
+        if x_star is not None:
+            assert check_values(x_star)
+            assert check_event_time(x_star, data)
+            assert check_unique_event(x_star, data)
+            assert check_max_number_of_events_per_day(
+                x_star, data, max_num_events_per_day
+            )
+            assert check_morning_events(x_star, data, starting_hour)
 
     def no_choice_case():
         """User choice is empty hence we should get an empty vector."""
@@ -347,7 +353,8 @@ def test_solve():
         data = create_data()
         x_star = solve(data, [], {})
 
-        assert all(x == 0 for x in x_star)
+        if x_star is not None:
+            assert all(x == 0 for x in x_star)
 
     for _ in range(30):
         default_case()

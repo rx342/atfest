@@ -279,7 +279,7 @@ def solve(
     user_choices: list[str],
     user_priorities: dict[str, Priority],
     max_num_events_per_day: int = 2,
-) -> np.ndarray:
+) -> np.ndarray | None:
     """Solve the optimization problem
 
     Parameters
@@ -295,8 +295,8 @@ def solve(
 
     Returns
     -------
-    np.ndarray
-        Optimal solution
+    np.ndarray | None
+        Optimal solution or `None` if no solution
 
     """
     from libs.priority import get_priority_vector
@@ -325,6 +325,10 @@ def solve(
     i_3 = get_inequality_max_events_per_day(x_tilde, data_tilde, max_num_events_per_day)
     prob = cp.Problem(objective, i_1 + i_2 + i_3)
     result = prob.solve()
+
+    if x_tilde.value is None:
+        log.warning("No solution found for the problem!")
+        return None
 
     log.debug(f"Optimal value is {result}")
 
