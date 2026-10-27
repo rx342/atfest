@@ -271,6 +271,38 @@ def test_solve():
 
         return all(x_star_df["start"].dt.hour >= starting_hour)
 
+    def check_first_event(x_star: np.ndarray) -> bool:
+        """Check if the first event is chosen in the solution.
+
+        Parameters
+        ----------
+        x_star : np.ndarray
+            Optimal solution found by the solver
+
+        Returns
+        -------
+        bool
+            `True` if the first event is chosen, else `False`
+
+        """
+        return x_star[0] == 1
+
+    def check_last_event(x_star: np.ndarray) -> bool:
+        """Check if the last event is chosen in the solution.
+
+        Parameters
+        ----------
+        x_star : np.ndarray
+            Optimal solution found by the solver
+
+        Returns
+        -------
+        bool
+            `True` if the last event is chosen, else `False`
+
+        """
+        return x_star[-1] == 1
+
     def create_max_number_of_events_per_day() -> int:
         """Return a random value for the maximum number of events per day."""
         return random.randint(1, 5)
@@ -356,7 +388,65 @@ def test_solve():
         if x_star is not None:
             assert all(x == 0 for x in x_star)
 
-    for _ in range(30):
+    def first_event_case():
+        """Attend the first event case."""
+
+        data = create_data()
+        user_choices = create_user_choices(data)
+        attend_first = random.randint(0, 1)
+
+        if attend_first:
+            first_event_name = data["event"].iloc[0]
+            user_choices.append(first_event_name)
+            user_choices = list(set(user_choices))
+
+        user_priorities = create_user_priorities(user_choices)
+        max_num_events_per_day = create_max_number_of_events_per_day()
+
+        x_star = solve(data, user_choices, user_priorities, max_num_events_per_day)
+
+        if x_star is not None:
+            assert check_values(x_star)
+            assert check_event_time(x_star, data)
+            assert check_unique_event(x_star, data)
+            assert check_max_number_of_events_per_day(
+                x_star, data, max_num_events_per_day
+            )
+
+            if attend_first:
+                assert check_first_event(x_star)
+
+    def last_event_case():
+        """Attend the last event case."""
+
+        data = create_data()
+        user_choices = create_user_choices(data)
+        attend_last = random.randint(0, 1)
+
+        if attend_last:
+            last_event_name = data["event"].iloc[-1]
+            user_choices.append(last_event_name)
+            user_choices = list(set(user_choices))
+
+        user_priorities = create_user_priorities(user_choices)
+        max_num_events_per_day = create_max_number_of_events_per_day()
+
+        x_star = solve(data, user_choices, user_priorities, max_num_events_per_day)
+
+        if x_star is not None:
+            assert check_values(x_star)
+            assert check_event_time(x_star, data)
+            assert check_unique_event(x_star, data)
+            assert check_max_number_of_events_per_day(
+                x_star, data, max_num_events_per_day
+            )
+
+            if attend_last:
+                assert check_last_event(x_star)
+
+    for _ in range(10):
         default_case()
         no_morning_events_case()
         no_choice_case()
+        first_event_case()
+        last_event_case()
