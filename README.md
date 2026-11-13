@@ -17,7 +17,6 @@ If you are interested in the mathematical details, please check the [blog post](
 
 ## Requirements
 
-- `python3`
 - [`uv`](https://docs.astral.sh/uv/getting-started/installation/)
 - Optional: [`nix`](https://nixos.org/) (provides the above in [`default.nix`](./default.nix))
 
